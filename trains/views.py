@@ -4,7 +4,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
+@method_decorator(csrf_exempt, name='dispatch')
 class TrainSearchView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -14,7 +17,7 @@ class TrainSearchView(APIView):
         train_list = TrainListSerializer(trains, many = True)
         return Response(train_list.data)
         
-    
+@method_decorator(csrf_exempt, name='dispatch')    
 class TrainDetailView(APIView):
     authentication_classes = [TokenAuthentication]
 
@@ -55,7 +58,7 @@ class TrainDetailView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors)
     
-
+@method_decorator(csrf_exempt, name='dispatch')
 class TrainMakeView(APIView):
     permission_classes = [IsAdminUser]
 

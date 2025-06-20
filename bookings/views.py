@@ -4,7 +4,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class BookingView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -43,7 +47,7 @@ class BookingView(APIView):
         serializer = BookingResponseSerializer(bookings, many = True)
         return Response(serializer.data)
     
-
+@method_decorator(csrf_exempt, name='dispatch')
 class DeleteBookingView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

@@ -4,7 +4,10 @@ from .serializers import UserSerializer, LoginSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data = request.data)
@@ -19,7 +22,8 @@ class RegisterView(APIView):
                     "data" : {'token' : token.key }
             })
         return Response(serializer.errors)
-    
+
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data = request.data)
