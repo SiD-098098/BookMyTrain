@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trains</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+</head>
+
+<body data-bs-theme="dark">
+    <div id="header"></div>
+    <div class="container py-4">
+        <form class="row g-3 align-items-end justify-content-center" id="filter-trains-form">
+            <div class="col-md-3">
+                <label for="source" class="form-label">Source</label>
+                <select id="source" name="source" class="form-select" required>
+                    <option value="" disabled selected>Select source</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="destination" class="form-label">Destination</label>
+                <select id="destination" name="destination" class="form-select" required>
+                    <option value="" disabled selected>Select destination</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="departureDate" class="form-label">Departure Date</label>
+                <input type="date" id="departureDate" name="departure_date" class="form-control" required>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100" id="sort-stations">Search</button>
+            </div>
+        </form>
+    </div>
+    <div class="container mt-4">
+        <h1>Available Trains:</h1><br>
+        <div id="trainContainer" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Book Train</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body-content">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="confirmBookingBtn">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('common/header.html')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('header').innerHTML = html;
+            });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+    <script src="common/config.js"></script>
+    <script>
+        const stations = new Set();
+        const train_list = [];
+        window.onload = function () {
+            trains_fetch_url = `${BACKEND_URL}/train/search/`;
+            token = localStorage.getItem("token")
+            fetch(trains_fetch_url, {
+                method: 'GET',
+                headers: { "Authorization": `token ${token}` }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                    list_as_cards(data);
+                    extract_stations(data);
+                    populateDropdowns(stations);
+                    train_list.push(...data);
+                });
+        }
+
+        document.getElementById("filter-trains-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const source = document.getElementById("source").value;
+            const destination = document.getElementById("destination").value;
+            const date = document.getElementById("departureDate").value;
+            const filter_array = [];
+            train_list.forEach(train => {
+                const departureDate = train.departure_time.split("T")[0];
+                if (train.source == source && train.destination == destination && departureDate == date) {
+                    filter_array.push(train);
+                }
+            })
+            list_as_cards(filter_array);
+        }) 
+    </script>
+</body>
+
+</html>
